@@ -15,7 +15,8 @@
 #       ./scripts/push-image.sh
 #
 
-set -u # or set -o nounset
+set -e # Exit on any error
+set -u # Treat unset variables as errors
 
 # Ensure environment variables are set
 : "${CONTAINER_REGISTRY:?CONTAINER_REGISTRY is not set}"
@@ -28,7 +29,6 @@ echo "Debug Info:"
 echo "CONTAINER_REGISTRY: $CONTAINER_REGISTRY"
 echo "VERSION: $VERSION"
 echo "REGISTRY_UN: $REGISTRY_UN"
-# echo "REGISTRY_PW: (hidden)"
 
 # Perform docker login and check for errors
 echo "$REGISTRY_PW" | docker login "$CONTAINER_REGISTRY" --username "$REGISTRY_UN" --password-stdin
