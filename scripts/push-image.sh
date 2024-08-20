@@ -1,47 +1,43 @@
-#!/bin/bash
+name: Deploy microservice
 
-#
-# Publishes a Docker image.
-#
-# Environment variables:
-#
-#   CONTAINER_REGISTRY - The hostname of your container registry.
-#   REGISTRY_UN - User name for your container registry.
-#   REGISTRY_PW - Password for your container registry.
-#   VERSION - The version number to tag the images with.
-#
-# Usage:
-#
-#       ./scripts/push-image.sh
-#
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
-set -e # Exit on any error
-set -u # Treat unset variables as errors
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-# Ensure environment variables are set
-: "${CONTAINER_REGISTRY:?CONTAINER_REGISTRY is not set}"
-: "${VERSION:?VERSION is not set}"
-: "${REGISTRY_UN:?REGISTRY_UN is not set}"
-: "${REGISTRY_PW:?REGISTRY_PW is not set}"
+    steps:
+      - uses: actions/checkout@v3
 
-# Print debug information
-echo "Debug Info:"
-echo "CONTAINER_REGISTRY: $CONTAINER_REGISTRY"
-echo "VERSION: $VERSION"
-echo "REGISTRY_UN: $REGISTRY_UN"
+      # Build Docker image
+      - name: Build Docker image
+        run: ./scripts/build-image.sh
+        env:
+          CONTAINER_REGISTRY: ${{ secrets.CONTAINER_REGISTRY }}
+          VERSION: ${{ github.sha }}
 
-# Perform docker login and check for errors
-echo "$REGISTRY_PW" | docker login "$CONTAINER_REGISTRY" --username "$REGISTRY_UN" --password-stdin
-if [ $? -ne 0 ]; then
-    echo "Docker login failed. Please check your credentials."
-    exit 1
-fi
+      # Publish Docker image to container registry
+      - name: Publish Docker image
+        run: ./scripts/push-image.sh
+        env:
+          CONTAINER_REGISTRY: ${{ secrets.CONTAINER_REGISTRY }}
+          VERSION: ${{ github.sha }}
+          REGISTRY_UN: ${{ secrets.REGISTRY_UN }}
+          REGISTRY_PW: ${{ secrets.REGISTRY_PW }}
 
-# Push the Docker image and handle errors
-docker push "$CONTAINER_REGISTRY/video-streaming:$VERSION"
-if [ $? -ne 0 ]; then
-    echo "Docker push failed. Please check the image tag and connection to the registry."
-    exit 1
-fi
+      # Setup kubectl and deploy to Kubernetes
+      - name: Setup kubectl
+        uses: tale/kubectl-action@v1
+        with:
+          base64-kube-config: ${{ secrets.KUBE_CONFIG }}
+          kubectl-version: v1.24.2
 
-echo "Docker image pushed successfully!"
+      - name: Deploy to Kubernetes
+        run: ./scripts/deploy.sh
+        env:
+          CONTAINER_REGISTRY: ${{ secrets.CONTAINER_REGISTRY }}
+          VERSION: ${{ github.sha }}
