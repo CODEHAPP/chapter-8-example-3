@@ -26,11 +26,4 @@ fi
 docker buildx build --platform linux/amd64,linux/arm64 \
   --push -t "$CONTAINER_REGISTRY/video-streaming:$VERSION" .
 
-# Push the Docker image and handle errors
-docker push "$CONTAINER_REGISTRY/video-streaming:$VERSION"
-if [ $? -ne 0 ]; then
-    echo "Docker push failed. Please check the image tag and connection to the registry."
-    exit 1
-fi
-
 echo "Docker image built and pushed successfully!"
