@@ -22,6 +22,14 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
+      - name: Test Network Connectivity
+        run: |
+          curl -I https://adfvvcgbj.azurecr.io
+
+      - name: Configure DNS
+        run: |
+          sudo echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
       - name: Build and push Docker image
         run: ./scripts/build-image.sh
 
@@ -34,3 +42,10 @@ jobs:
         run: ./scripts/deploy.sh
         env:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Print Environment Variables
+        run: |
+          echo "CONTAINER_REGISTRY: $CONTAINER_REGISTRY"
+          echo "VERSION: $VERSION"
+          echo "REGISTRY_UN: $REGISTRY_UN"
+          echo "REGISTRY_PW: $REGISTRY_PW"
