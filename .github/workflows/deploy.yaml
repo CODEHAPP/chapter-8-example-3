@@ -21,7 +21,7 @@ jobs:
 
       - name: Configure DNS
         run: |
-          echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf
+          echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf
 
       - name: Test Network Connectivity
         run: |
@@ -42,10 +42,3 @@ jobs:
         run: ./scripts/deploy.sh
         env:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
-
-      - name: Print Environment Variables
-        run: |
-          echo "CONTAINER_REGISTRY: $CONTAINER_REGISTRY"
-          echo "VERSION: $VERSION"
-          echo "REGISTRY_UN: $REGISTRY_UN"
-          echo "REGISTRY_PW: $REGISTRY_PW"
