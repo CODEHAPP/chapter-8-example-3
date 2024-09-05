@@ -22,8 +22,12 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Build the Docker image with context path as current directory
+# Debugging: List files in the current directory
+echo "Files in the current directory:"
+ls -la
+
+# Build and push the Docker image using Dockerfile-prod
 docker buildx build --platform linux/amd64,linux/arm64 \
-  --push -t "$CONTAINER_REGISTRY/video-streaming:$VERSION" .
+  -f Dockerfile-prod --push -t "$CONTAINER_REGISTRY/video-streaming:$VERSION" .
 
 echo "Docker image built and pushed successfully!"
