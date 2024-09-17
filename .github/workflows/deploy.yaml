@@ -36,7 +36,7 @@ jobs:
       - name: Install kubectl
         uses: azure/setup-kubectl@v1
         with:
-          version: '1.24.2'
+          version: latest
       
       - name: Deploy to Kubernetes
         run: ./scripts/deploy.sh
