@@ -29,13 +29,19 @@ jobs:
       - name: Build and push Docker image
         run: ./scripts/build-image.sh
 
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v1
-        with:
-          version: latest
-      
+      - name: Set up kubeconfig
+        run: |
+          echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
+          export KUBECONFIG=$HOME/.kube/config
+
       - name: Check Kubernetes configuration
         run: kubectl config view
+
+      - name: Check current kubectl context
+        run: kubectl config current-context
+
+      - name: Check Kubernetes cluster connectivity
+        run: kubectl cluster-info
 
       - name: Deploy to Kubernetes
         run: ./scripts/deploy.sh
