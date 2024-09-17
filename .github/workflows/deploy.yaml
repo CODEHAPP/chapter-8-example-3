@@ -25,7 +25,7 @@ jobs:
 
       - name: Test Network Connectivity
         run: |
-          curl -I https://adfvvcgbj.azurecr.io || echo "Failed to connect to container registry"
+          curl -I https://snow12.azurecr.io || echo "Failed to connect to container registry"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -42,3 +42,5 @@ jobs:
         run: ./scripts/deploy.sh
         env:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+          
+
