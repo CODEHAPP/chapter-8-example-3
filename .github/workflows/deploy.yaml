@@ -19,10 +19,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Configure DNS
-        run: |
-          echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf
-
       - name: Test Network Connectivity
         run: |
           curl -I https://snow12.azurecr.io || echo "Failed to connect to container registry"
@@ -38,9 +34,10 @@ jobs:
         with:
           version: latest
       
+      - name: Check Kubernetes configuration
+        run: kubectl config view
+
       - name: Deploy to Kubernetes
         run: ./scripts/deploy.sh
         env:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
-          
-
